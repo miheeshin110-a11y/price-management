@@ -25,7 +25,7 @@
 <!-- 사이드바 -->
 <aside id="sidebar" class="fixed top-0 left-0 h-full w-60 bg-navy-800 text-white z-30 flex flex-col -translate-x-full md:translate-x-none">
   <div class="px-6 py-5 border-b border-white/10">
-    <div class="text-xs text-white/50 font-medium tracking-widest uppercase mb-1">Dayzeon</div>
+    <div class="text-xs text-white/50 font-medium tracking-widest uppercase mb-1">DAYSON</div>
     <div class="text-base font-bold leading-tight">발주단가<br>관리 시스템</div>
   </div>
   <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -115,6 +115,17 @@
       </div>
     </div>
 
+    <!-- 제품별 히스토리 바로가기 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <h2 class="text-sm font-semibold text-gray-700">제품별 단가 현황 <span class="text-xs text-gray-400 font-normal ml-1">클릭하면 히스토리로 이동</span></h2>
+        <a href="products.html" class="text-xs text-navy-700 hover:underline">전체 제품 →</a>
+      </div>
+      <div id="productCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4">
+        <div class="text-gray-400 text-sm col-span-4">로딩 중...</div>
+      </div>
+    </div>
+
     <!-- 최근 단가 변경 이력 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -171,6 +182,22 @@
   avgEl.className = `text-3xl font-bold ${avg > 0 ? 'text-red-600' : avg < 0 ? 'text-blue-600' : 'text-navy-800'}`;
 
   document.getElementById('recentProduct').textContent = d.recent_product || '-';
+
+  // 제품별 단가 현황 카드
+  const pRes = await apiGet('getProducts');
+  const productCardsEl = document.getElementById('productCards');
+  if (pRes.success && pRes.data.length > 0) {
+    productCardsEl.innerHTML = pRes.data.map(p => `
+      <div onclick="location.href='history-detail.html?id=${encodeURIComponent(p.product_id)}'"
+           class="cursor-pointer border border-gray-100 rounded-xl p-4 hover:border-navy-700 hover:shadow-sm transition-all">
+        <div class="text-xs text-gray-400 font-mono mb-1">${p.product_id}</div>
+        <div class="text-sm font-semibold text-gray-800 mb-2 leading-tight">${p.product_name}</div>
+        <div class="text-lg font-bold text-navy-800">${formatPrice(p.current_price)}</div>
+        <div class="text-xs text-gray-400 mt-1">${p.supplier_name || '-'}</div>
+      </div>`).join('');
+  } else {
+    productCardsEl.innerHTML = '<div class="text-gray-400 text-sm col-span-4">등록된 제품이 없습니다.</div>';
+  }
 
   // 최근 이력 테이블
   const tbody = document.getElementById('recentTable');

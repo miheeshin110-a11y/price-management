@@ -1,0 +1,94 @@
+/* ── 발주단가 관리 시스템 커스텀 스타일 ── */
+
+/* 사이드바 */
+#sidebar {
+  transition: transform 0.25s ease;
+}
+
+/* 테이블 행 호버 */
+.data-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+.data-table tbody tr:hover {
+  background-color: #f0f4ff;
+}
+
+/* 모달 오버레이 */
+.modal-overlay {
+  animation: fadeIn 0.15s ease;
+}
+.modal-box {
+  animation: slideUp 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 스피너 */
+#globalSpinner {
+  backdrop-filter: blur(2px);
+}
+.spinner-ring {
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 토스트 */
+#toastContainer {
+  z-index: 9999;
+}
+
+/* 검색 셀렉트 */
+.select2-like {
+  position: relative;
+}
+
+/* 카드 호버 */
+.stat-card {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* 인상/인하 뱃지 */
+.badge-up   { background: #fee2e2; color: #dc2626; }
+.badge-down { background: #dbeafe; color: #2563eb; }
+.badge-zero { background: #f3f4f6; color: #6b7280; }
+
+/* 페이지네이션 */
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.page-btn:hover:not(.active) { background: #e5e7eb; }
+.page-btn.active { background: #1e3a5f; color: #fff; }
+
+/* 폼 포커스 */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #1e3a5f !important;
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.12);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+}
+@media (min-width: 769px) {
+  .mobile-only { display: none !important; }
+  #sidebar { transform: none !important; }
+}
