@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 - 발주단가 관리 시스템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { navy: { 900:'#0f2340', 800:'#1e3a5f', 700:'#2a4f7c', 600:'#3b6494' } }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex">
+
+<!-- 사이드바 오버레이 (모바일) -->
+<div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/40 z-20 mobile-only"></div>
+
+<!-- 사이드바 -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-60 bg-navy-800 text-white z-30 flex flex-col -translate-x-full md:translate-x-none">
+  <div class="px-6 py-5 border-b border-white/10">
+    <div class="text-xs text-white/50 font-medium tracking-widest uppercase mb-1">Dayzeon</div>
+    <div class="text-base font-bold leading-tight">발주단가<br>관리 시스템</div>
+  </div>
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <a href="index.html"        data-nav="index.html"       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      대시보드
+    </a>
+    <a href="products.html"     data-nav="products.html"    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+      제품 관리
+    </a>
+    <a href="price-change.html" data-nav="price-change.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      단가 변경 등록
+    </a>
+    <a href="history.html"      data-nav="history.html"     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      전체 이력 조회
+    </a>
+    <a href="settings.html"     data-nav="settings.html"    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      사유코드 관리
+    </a>
+  </nav>
+  <div class="px-6 py-4 border-t border-white/10 text-xs text-white/30">v1.0.0</div>
+</aside>
+
+<!-- 메인 -->
+<div class="flex-1 flex flex-col md:ml-60 min-h-screen">
+  <!-- 상단 바 -->
+  <header class="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between px-5 py-3.5 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 mobile-only">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <h1 class="text-base font-semibold text-gray-700">대시보드</h1>
+    </div>
+    <span class="text-xs text-gray-400" id="lastUpdated"></span>
+  </header>
+
+  <!-- 콘텐츠 -->
+  <main class="flex-1 p-5 md:p-6 space-y-6">
+
+    <!-- 요약 카드 -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div class="text-xs text-gray-500 font-medium mb-2">총 제품 수</div>
+        <div class="text-3xl font-bold text-navy-800" id="totalProducts">—</div>
+        <div class="text-xs text-gray-400 mt-1">등록된 제품</div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div class="text-xs text-gray-500 font-medium mb-2">이번달 변경건수</div>
+        <div class="text-3xl font-bold text-navy-800" id="monthChanges">—</div>
+        <div class="text-xs text-gray-400 mt-1" id="monthLabel"></div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div class="text-xs text-gray-500 font-medium mb-2">이번달 평균 변동률</div>
+        <div class="text-3xl font-bold" id="avgRate">—</div>
+        <div class="text-xs text-gray-400 mt-1">단가 평균 변동</div>
+      </div>
+      <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div class="text-xs text-gray-500 font-medium mb-2">최근 변경 제품</div>
+        <div class="text-base font-bold text-navy-800 truncate" id="recentProduct">—</div>
+        <div class="text-xs text-gray-400 mt-1">가장 최근 변경</div>
+      </div>
+    </div>
+
+    <!-- 차트 + 상위5 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <!-- 사유별 분포 차트 -->
+      <div class="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-gray-700">사유별 변경 분포 <span class="text-xs text-gray-400 font-normal ml-1">최근 6개월</span></h2>
+        </div>
+        <div class="relative h-64">
+          <canvas id="reasonChart"></canvas>
+          <div id="reasonChartEmpty" class="hidden absolute inset-0 flex items-center justify-center text-gray-400 text-sm">데이터가 없습니다.</div>
+        </div>
+      </div>
+
+      <!-- 변동률 상위 5 -->
+      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">변동률 상위 5개</h2>
+        <div id="top5List" class="space-y-3">
+          <div class="text-gray-400 text-sm">데이터가 없습니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 최근 단가 변경 이력 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <h2 class="text-sm font-semibold text-gray-700">최근 단가 변경 내역</h2>
+        <a href="history.html" class="text-xs text-navy-700 hover:underline">전체 보기 →</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm data-table">
+          <thead>
+            <tr class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+              <th class="px-4 py-3 text-left font-medium">제품명</th>
+              <th class="px-4 py-3 text-left font-medium desktop-only">거래처</th>
+              <th class="px-4 py-3 text-right font-medium">변경 전</th>
+              <th class="px-4 py-3 text-right font-medium">변경 후</th>
+              <th class="px-4 py-3 text-center font-medium">변동률</th>
+              <th class="px-4 py-3 text-left font-medium desktop-only">사유</th>
+              <th class="px-4 py-3 text-center font-medium">적용일</th>
+            </tr>
+          </thead>
+          <tbody id="recentTable">
+            <tr><td colspan="7" class="px-4 py-10 text-center text-gray-400 text-sm">로딩 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 전역 스피너 -->
+<div id="globalSpinner" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+  <div class="spinner-ring"></div>
+</div>
+<!-- 토스트 -->
+<div id="toastContainer" class="fixed top-5 right-5 space-y-2 z-50"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+(async () => {
+  const now = new Date();
+  document.getElementById('monthLabel').textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월`;
+  document.getElementById('lastUpdated').textContent = '업데이트: ' + now.toLocaleString('ko-KR');
+
+  const res = await apiGet('getDashboard');
+  if (!res.success) { showToast(res.message, 'error'); return; }
+  const d = res.data;
+
+  document.getElementById('totalProducts').textContent = d.total_products;
+  document.getElementById('monthChanges').textContent = d.this_month_changes;
+
+  const avgEl = document.getElementById('avgRate');
+  const avg = Number(d.avg_change_rate);
+  avgEl.textContent = (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%';
+  avgEl.className = `text-3xl font-bold ${avg > 0 ? 'text-red-600' : avg < 0 ? 'text-blue-600' : 'text-navy-800'}`;
+
+  document.getElementById('recentProduct').textContent = d.recent_product || '-';
+
+  // 최근 이력 테이블
+  const tbody = document.getElementById('recentTable');
+  if (!d.recent_history || d.recent_history.length === 0) {
+    tbody.innerHTML = emptyRow(7);
+  } else {
+    tbody.innerHTML = d.recent_history.map(r => `
+      <tr onclick="location.href='history-detail.html?id=${encodeURIComponent(r.product_id)}'" class="border-t border-gray-50">
+        <td class="px-4 py-3 font-medium">${r.product_name || r.product_id}</td>
+        <td class="px-4 py-3 text-gray-500 desktop-only">${r.supplier_name || '-'}</td>
+        <td class="px-4 py-3 text-right text-gray-500">${formatPrice(r.price_before)}</td>
+        <td class="px-4 py-3 text-right font-medium">${formatPrice(r.price_after)}</td>
+        <td class="px-4 py-3 text-center">${rateHtml(r.change_rate)}</td>
+        <td class="px-4 py-3 text-gray-500 text-xs desktop-only">${r.reason_code || '-'}</td>
+        <td class="px-4 py-3 text-center text-gray-500 text-xs">${r.effective_date || '-'}</td>
+      </tr>`).join('');
+  }
+
+  // 사유별 차트
+  const reasonDist = d.reason_distribution || {};
+  const labels = Object.keys(reasonDist);
+  const values = Object.values(reasonDist);
+  if (labels.length === 0) {
+    document.getElementById('reasonChartEmpty').classList.remove('hidden');
+  } else {
+    const palette = ['#1e3a5f','#2a4f7c','#3b6494','#4d7ab0','#6a96c8','#8fb3dc','#b4cfe8','#d0e2f2','#e0ecf8','#f0f5fb','#c0392b','#e74c3c','#f39c12','#27ae60'];
+    new Chart(document.getElementById('reasonChart'), {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: palette.slice(0, labels.length), borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 }, padding: 10 } } }
+      }
+    });
+  }
+
+  // 상위 5
+  const top5 = d.top5_changes || [];
+  const top5El = document.getElementById('top5List');
+  if (top5.length === 0) {
+    top5El.innerHTML = '<div class="text-gray-400 text-sm">데이터가 없습니다.</div>';
+  } else {
+    top5El.innerHTML = top5.map((r, i) => {
+      const rate = Number(r.change_rate);
+      const isUp = rate > 0;
+      return `<div class="flex items-center gap-3">
+        <span class="text-xs font-bold text-gray-400 w-4">${i+1}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">${r.product_name || r.product_id}</div>
+          <div class="text-xs text-gray-400">${r.effective_date}</div>
+        </div>
+        <span class="text-sm font-bold ${isUp ? 'text-red-600' : 'text-blue-600'}">${isUp ? '▲' : '▼'} ${Math.abs(rate).toFixed(1)}%</span>
+      </div>`;
+    }).join('');
+  }
+})();
+</script>
+</body>
+</html>

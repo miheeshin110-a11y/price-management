@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사유코드 관리 - 발주단가 관리 시스템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script>tailwind.config={theme:{extend:{colors:{navy:{900:'#0f2340',800:'#1e3a5f',700:'#2a4f7c',600:'#3b6494'}}}}}</script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex">
+
+<div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/40 z-20 mobile-only"></div>
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-60 bg-navy-800 text-white z-30 flex flex-col -translate-x-full md:translate-x-none">
+  <div class="px-6 py-5 border-b border-white/10">
+    <div class="text-xs text-white/50 font-medium tracking-widest uppercase mb-1">Dayzeon</div>
+    <div class="text-base font-bold leading-tight">발주단가<br>관리 시스템</div>
+  </div>
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <a href="index.html"        data-nav="index.html"       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>대시보드</a>
+    <a href="products.html"     data-nav="products.html"    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>제품 관리</a>
+    <a href="price-change.html" data-nav="price-change.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>단가 변경 등록</a>
+    <a href="history.html"      data-nav="history.html"     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>전체 이력 조회</a>
+    <a href="settings.html"     data-nav="settings.html"    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>사유코드 관리</a>
+  </nav>
+  <div class="px-6 py-4 border-t border-white/10 text-xs text-white/30">v1.0.0</div>
+</aside>
+
+<div class="flex-1 flex flex-col md:ml-60 min-h-screen">
+  <header class="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between px-5 py-3.5 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 mobile-only">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <h1 class="text-base font-semibold text-gray-700">사유코드 관리</h1>
+    </div>
+    <button onclick="openAddModal()" class="flex items-center gap-2 bg-navy-800 text-white text-sm px-4 py-2 rounded-lg hover:bg-navy-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      코드 추가
+    </button>
+  </header>
+
+  <main class="flex-1 p-5 md:p-6">
+    <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 mb-5 text-amber-800 text-sm">
+      💡 비활성화된 사유코드는 단가 변경 등록 시 선택 목록에 표시되지 않습니다. 코드 삭제는 불가하며, 비활성화만 가능합니다.
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+              <th class="px-4 py-3 text-left font-medium">코드</th>
+              <th class="px-4 py-3 text-left font-medium">카테고리</th>
+              <th class="px-4 py-3 text-left font-medium">사유명</th>
+              <th class="px-4 py-3 text-center font-medium">상태</th>
+              <th class="px-4 py-3 text-center font-medium">액션</th>
+            </tr>
+          </thead>
+          <tbody id="reasonTable">
+            <tr><td colspan="5" class="px-4 py-10 text-center text-gray-400 text-sm">로딩 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 사유코드 모달 -->
+<div id="reasonModal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-box">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <h3 id="modalTitle" class="text-base font-bold text-gray-800">사유코드 추가</h3>
+      <button onclick="closeModal()" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="text-xs font-semibold text-gray-600 block mb-1.5">사유코드 <span class="text-red-500">*</span></label>
+        <input id="f_reason_code" type="text" placeholder="예: RM-03" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-gray-600 block mb-1.5">카테고리 <span class="text-red-500">*</span></label>
+        <input id="f_reason_category" type="text" placeholder="예: 원자재" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-gray-600 block mb-1.5">사유명 <span class="text-red-500">*</span></label>
+        <input id="f_reason_name" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+      </div>
+    </div>
+    <div class="px-6 pb-5 flex gap-3 justify-end">
+      <button onclick="closeModal()" class="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50">취소</button>
+      <button onclick="saveReason()" class="px-5 py-2 text-sm bg-navy-800 text-white rounded-lg hover:bg-navy-700 font-medium">저장</button>
+    </div>
+  </div>
+</div>
+
+<div id="globalSpinner" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center"><div class="spinner-ring"></div></div>
+<div id="toastContainer" class="fixed top-5 right-5 space-y-2 z-50"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+let editMode = false;
+
+async function loadReasons() {
+  const res = await apiGet('getReasonCodes');
+  if (!res.success) { showToast(res.message, 'error'); return; }
+  const data = res.data;
+  const tbody = document.getElementById('reasonTable');
+  if (!data.length) { tbody.innerHTML = emptyRow(5); return; }
+
+  // 카테고리별 그룹
+  const groups = {};
+  data.forEach(r => {
+    if (!groups[r.reason_category]) groups[r.reason_category] = [];
+    groups[r.reason_category].push(r);
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([cat, items]) => {
+    html += `<tr class="bg-gray-50"><td colspan="5" class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide">${cat}</td></tr>`;
+    items.forEach(r => {
+      const isActive = String(r.is_active) === '1' || r.is_active === true || r.is_active === 1;
+      html += `
+      <tr class="border-t border-gray-50 ${isActive ? '' : 'opacity-50'}">
+        <td class="px-4 py-3 font-mono text-sm font-semibold text-navy-800">${r.reason_code}</td>
+        <td class="px-4 py-3 text-gray-500">${r.reason_category}</td>
+        <td class="px-4 py-3 font-medium">${r.reason_name}</td>
+        <td class="px-4 py-3 text-center">
+          ${isActive
+            ? '<span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">활성</span>'
+            : '<span class="text-xs bg-gray-100 text-gray-500 border border-gray-200 px-2.5 py-0.5 rounded-full">비활성</span>'}
+        </td>
+        <td class="px-4 py-3 text-center">
+          <div class="flex items-center justify-center gap-2">
+            <button onclick="openEditModal('${r.reason_code}')" class="text-xs px-2.5 py-1 rounded-md border border-gray-200 hover:bg-gray-50 text-gray-600">수정</button>
+            ${isActive
+              ? `<button onclick="toggleActive('${r.reason_code}', false)" class="text-xs px-2.5 py-1 rounded-md border border-amber-100 hover:bg-amber-50 text-amber-600">비활성화</button>`
+              : `<button onclick="toggleActive('${r.reason_code}', true)"  class="text-xs px-2.5 py-1 rounded-md border border-emerald-100 hover:bg-emerald-50 text-emerald-600">활성화</button>`}
+          </div>
+        </td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+let allReasons = [];
+async function openEditModal(code) {
+  if (!allReasons.length) {
+    const res = await apiGet('getReasonCodes');
+    if (res.success) allReasons = res.data;
+  }
+  const r = allReasons.find(x => x.reason_code === code);
+  if (!r) return;
+  editMode = true;
+  document.getElementById('modalTitle').textContent = '사유코드 수정';
+  document.getElementById('f_reason_code').value = r.reason_code;
+  document.getElementById('f_reason_code').disabled = true;
+  document.getElementById('f_reason_category').value = r.reason_category;
+  document.getElementById('f_reason_name').value = r.reason_name;
+  document.getElementById('reasonModal').classList.remove('hidden');
+}
+
+function openAddModal() {
+  editMode = false;
+  document.getElementById('modalTitle').textContent = '사유코드 추가';
+  document.getElementById('f_reason_code').disabled = false;
+  ['reason_code','reason_category','reason_name'].forEach(k => document.getElementById('f_'+k).value = '');
+  document.getElementById('reasonModal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('reasonModal').classList.add('hidden');
+  allReasons = [];
+}
+
+async function saveReason() {
+  const data = {
+    reason_code: document.getElementById('f_reason_code').value.trim(),
+    reason_category: document.getElementById('f_reason_category').value.trim(),
+    reason_name: document.getElementById('f_reason_name').value.trim()
+  };
+  if (!data.reason_code)     { showToast('사유코드를 입력하세요.', 'warning'); return; }
+  if (!data.reason_category) { showToast('카테고리를 입력하세요.', 'warning'); return; }
+  if (!data.reason_name)     { showToast('사유명을 입력하세요.', 'warning'); return; }
+
+  const action = editMode ? 'updateReasonCode' : 'addReasonCode';
+  const res = await apiPost(action, data);
+  if (res.success) {
+    showToast(res.message, 'success');
+    closeModal();
+    loadReasons();
+  } else {
+    showToast(res.message, 'error');
+  }
+}
+
+async function toggleActive(code, activate) {
+  const label = activate ? '활성화' : '비활성화';
+  if (!confirm(`[${code}] 코드를 ${label}하시겠습니까?`)) return;
+  const res = await apiPost('updateReasonCode', { reason_code: code, is_active: activate ? 1 : 0 });
+  if (res.success) {
+    showToast(`${label} 처리되었습니다.`, 'success');
+    loadReasons();
+  } else {
+    showToast(res.message, 'error');
+  }
+}
+
+loadReasons();
+</script>
+</body>
+</html>
