@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>단가 히스토리 - 발주단가 관리 시스템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script>tailwind.config={theme:{extend:{colors:{navy:{900:'#0f2340',800:'#1e3a5f',700:'#2a4f7c',600:'#3b6494'}}}}}</script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex">
+
+<div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/40 z-20 mobile-only"></div>
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-60 bg-navy-800 text-white z-30 flex flex-col -translate-x-full md:translate-x-none">
+  <div class="px-6 py-5 border-b border-white/10">
+    <div class="text-xs text-white/50 font-medium tracking-widest uppercase mb-1">DAYSON</div>
+    <div class="text-base font-bold leading-tight">발주단가<br>관리 시스템</div>
+  </div>
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <a href="index.html"            data-nav="index.html"            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>대시보드</a>
+    <a href="products.html"         data-nav="products.html"         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>제품 관리</a>
+    <a href="price-history-tab.html" data-nav="price-history-tab.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 12l5-5 5 5M7 17l5-5 5 5"/></svg>단가 히스토리</a>
+    <a href="price-change.html"     data-nav="price-change.html"     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>단가 변경 등록</a>
+    <a href="history.html"          data-nav="history.html"          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>전체 이력 조회</a>
+    <a href="settings.html"         data-nav="settings.html"         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>사유코드 관리</a>
+  </nav>
+  <div class="px-6 py-4 border-t border-white/10 text-xs text-white/30">v1.0.0</div>
+</aside>
+
+<div class="flex-1 flex flex-col md:ml-60 min-h-screen">
+  <header class="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between px-5 py-3.5 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 mobile-only">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <h1 class="text-base font-semibold text-gray-700">단가 히스토리</h1>
+    </div>
+    <a id="btnAddPrice" href="price-change.html" class="flex items-center gap-2 bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-emerald-500 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      단가 변경 등록
+    </a>
+  </header>
+
+  <main class="flex-1 flex flex-col min-h-0">
+
+    <!-- 제품 탭 목록 -->
+    <div class="bg-white border-b border-gray-200 px-4 overflow-x-auto">
+      <div id="productTabs" class="flex gap-1 py-2 min-w-max">
+        <div class="text-gray-400 text-sm py-2 px-3">로딩 중...</div>
+      </div>
+    </div>
+
+    <!-- 콘텐츠 영역 -->
+    <div class="flex-1 p-5 md:p-6 space-y-5 overflow-auto">
+
+      <!-- 제품 정보 카드 -->
+      <div id="productCard" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div><div class="text-xs text-gray-400 mb-1">제품코드</div><div class="font-mono font-semibold text-sm" id="pId">-</div></div>
+        <div><div class="text-xs text-gray-400 mb-1">제품명</div><div class="font-semibold" id="pName">-</div></div>
+        <div><div class="text-xs text-gray-400 mb-1">거래처</div><div class="text-sm" id="pSupplier">-</div></div>
+        <div><div class="text-xs text-gray-400 mb-1">현재 단가</div><div class="font-bold text-navy-800 text-lg" id="pPrice">-</div></div>
+        <div><div class="text-xs text-gray-400 mb-1">카테고리</div><div class="text-sm" id="pCategory">-</div></div>
+        <div><div class="text-xs text-gray-400 mb-1">단위</div><div class="text-sm" id="pUnit">-</div></div>
+        <div class="col-span-2"><div class="text-xs text-gray-400 mb-1">메모</div><div class="text-sm text-gray-600" id="pMemo">-</div></div>
+      </div>
+
+      <!-- 제품 미선택 안내 -->
+      <div id="emptyGuide" class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-400 text-sm">
+        위 탭에서 제품을 선택하세요.
+      </div>
+
+      <!-- 기간 필터 -->
+      <div id="filterArea" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3 items-center">
+        <label class="text-xs font-semibold text-gray-600">기간</label>
+        <input id="dateFrom" type="date" class="border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+        <span class="text-gray-400 text-sm">~</span>
+        <input id="dateTo"   type="date" class="border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+        <button onclick="loadHistory()" class="bg-navy-800 text-white text-sm px-4 py-2 rounded-lg hover:bg-navy-700">조회</button>
+        <button onclick="clearFilter()" class="text-sm px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600">초기화</button>
+      </div>
+
+      <!-- 라인차트 -->
+      <div id="chartArea" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <h2 class="text-sm font-semibold text-gray-700 mb-4">단가 추이</h2>
+        <div class="relative h-64">
+          <canvas id="priceChart"></canvas>
+          <div id="chartEmpty" class="hidden absolute inset-0 flex items-center justify-center text-gray-400 text-sm">이력 데이터가 없습니다.</div>
+        </div>
+      </div>
+
+      <!-- 이력 테이블 -->
+      <div id="tableArea" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h2 class="text-sm font-semibold text-gray-700">변경 이력</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <th class="px-4 py-3 text-center font-medium">적용일</th>
+                <th class="px-4 py-3 text-right font-medium">변경 전</th>
+                <th class="px-4 py-3 text-right font-medium">변경 후</th>
+                <th class="px-4 py-3 text-center font-medium">변동률</th>
+                <th class="px-4 py-3 text-left font-medium">사유코드</th>
+                <th class="px-4 py-3 text-left font-medium desktop-only">상세 내용</th>
+                <th class="px-4 py-3 text-center font-medium desktop-only">등록자</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="globalSpinner" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center"><div class="spinner-ring"></div></div>
+<div id="toastContainer" class="fixed top-5 right-5 space-y-2 z-50"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+let allProducts = [];
+let chartInstance = null;
+let currentProductId = null;
+
+async function init() {
+  const res = await apiGet('getProducts');
+  if (!res.success) { showToast('제품 목록을 불러올 수 없습니다.', 'error'); return; }
+  allProducts = res.data;
+
+  if (!allProducts.length) {
+    document.getElementById('productTabs').innerHTML = '<div class="text-gray-400 text-sm py-2 px-3">등록된 제품이 없습니다.</div>';
+    return;
+  }
+
+  // URL 파라미터로 제품 프리셀렉트
+  const urlId = new URLSearchParams(location.search).get('id');
+
+  renderTabs(urlId || allProducts[0].product_id);
+}
+
+function renderTabs(activeId) {
+  const tabsEl = document.getElementById('productTabs');
+  tabsEl.innerHTML = allProducts.map(p => `
+    <button
+      onclick="selectProduct('${p.product_id}')"
+      id="tab-${p.product_id}"
+      class="px-4 py-2 text-sm rounded-lg whitespace-nowrap transition-colors font-medium
+        ${p.product_id === activeId
+          ? 'bg-navy-800 text-white'
+          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'}"
+    >${p.product_name}</button>
+  `).join('');
+
+  selectProduct(activeId);
+}
+
+async function selectProduct(productId) {
+  currentProductId = productId;
+
+  // 탭 활성화 스타일
+  allProducts.forEach(p => {
+    const tab = document.getElementById('tab-' + p.product_id);
+    if (!tab) return;
+    if (p.product_id === productId) {
+      tab.className = 'px-4 py-2 text-sm rounded-lg whitespace-nowrap transition-colors font-medium bg-navy-800 text-white';
+    } else {
+      tab.className = 'px-4 py-2 text-sm rounded-lg whitespace-nowrap transition-colors font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800';
+    }
+  });
+
+  // 제품 정보 표시
+  const p = allProducts.find(x => x.product_id === productId);
+  if (p) {
+    document.getElementById('pId').textContent       = p.product_id;
+    document.getElementById('pName').textContent     = p.product_name;
+    document.getElementById('pSupplier').textContent = p.supplier_name || '-';
+    document.getElementById('pPrice').textContent    = formatPrice(p.current_price);
+    document.getElementById('pCategory').textContent = p.category || '-';
+    document.getElementById('pUnit').textContent     = p.unit || '-';
+    document.getElementById('pMemo').textContent     = p.memo || '-';
+
+    // 단가 변경 등록 버튼 링크 업데이트
+    document.getElementById('btnAddPrice').href = `price-change.html?id=${encodeURIComponent(productId)}`;
+  }
+
+  // 영역 표시
+  document.getElementById('emptyGuide').classList.add('hidden');
+  document.getElementById('productCard').classList.remove('hidden');
+  document.getElementById('filterArea').classList.remove('hidden');
+  document.getElementById('chartArea').classList.remove('hidden');
+  document.getElementById('tableArea').classList.remove('hidden');
+
+  // 필터 초기화
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value   = '';
+
+  await loadHistory();
+}
+
+function clearFilter() {
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value   = '';
+  loadHistory();
+}
+
+async function loadHistory() {
+  if (!currentProductId) return;
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo   = document.getElementById('dateTo').value;
+  const res = await apiGet('getPriceHistory', { product_id: currentProductId, date_from: dateFrom, date_to: dateTo });
+  if (!res.success) { showToast(res.message, 'error'); return; }
+  renderTable(res.data);
+  renderChart(res.data);
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('historyTable');
+  if (!data.length) { tbody.innerHTML = emptyRow(7); return; }
+  tbody.innerHTML = [...data]
+    .sort((a, b) => b.effective_date.localeCompare(a.effective_date))
+    .map(r => `
+      <tr class="border-t border-gray-50">
+        <td class="px-4 py-3 text-center text-gray-600 text-xs">${r.effective_date}</td>
+        <td class="px-4 py-3 text-right text-gray-400">${formatPrice(r.price_before)}</td>
+        <td class="px-4 py-3 text-right font-semibold">${formatPrice(r.price_after)}</td>
+        <td class="px-4 py-3 text-center">${rateHtml(r.change_rate)}</td>
+        <td class="px-4 py-3"><span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${r.reason_code || '-'}</span></td>
+        <td class="px-4 py-3 text-xs text-gray-500 max-w-xs truncate desktop-only">${r.reason_detail || '-'}</td>
+        <td class="px-4 py-3 text-center text-xs text-gray-400 desktop-only">${r.registered_by || '-'}</td>
+      </tr>`).join('');
+}
+
+function renderChart(data) {
+  const canvas  = document.getElementById('priceChart');
+  const emptyEl = document.getElementById('chartEmpty');
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  if (!data.length) {
+    emptyEl.classList.remove('hidden');
+    canvas.classList.add('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+  canvas.classList.remove('hidden');
+  const sorted = [...data].sort((a, b) => a.effective_date.localeCompare(b.effective_date));
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: sorted.map(r => r.effective_date),
+      datasets: [{
+        label: '단가',
+        data: sorted.map(r => r.price_after),
+        borderColor: '#1e3a5f',
+        backgroundColor: 'rgba(30,58,95,0.07)',
+        borderWidth: 2.5,
+        pointRadius: 5,
+        pointBackgroundColor: '#1e3a5f',
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => '₩' + ctx.parsed.y.toLocaleString('ko-KR') }
+      }},
+      scales: {
+        y: { ticks: { callback: v => '₩' + v.toLocaleString('ko-KR') }, grid: { color: '#f3f4f6' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
